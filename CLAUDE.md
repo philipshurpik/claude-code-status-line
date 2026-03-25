@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A color-coded status line for Claude Code CLI. Single Node.js script (`status-line.js`) that runs as a StatusLine hook — receives live `context_window` and `rate_limits` data on every streaming update and displays a color-coded status bar in the terminal.
 
-Fully self-contained, no dependencies. Only fires in CLI mode — does NOT fire when using VS Code/Cursor extension.
+Fully self-contained, no dependencies.
 
 ## Architecture
 
@@ -19,19 +19,14 @@ Claude Code CLI
 **Token thresholds** (defined in status-line.js):
 - `AUTOCOMPACT_BUFFER_TOKENS` = 33K — Claude Code reserves this for autocompact; subtracted from raw window to get effective window size
 - `WARN_TOKENS` = 60K — status turns yellow/warning
-- `COMPACT_TOKENS` = 80K — status turns orange/danger
+- `COMPACT_TOKENS` = 80K — status turns orange/consider compacting
 
 ## Commands
 
 ```bash
-# Run tests
-node --test tests/test_status_line.js
-
-# Install
-bash install.sh
+node --test tests/test_status_line.js   # run tests
+bash install.sh                         # install
 ```
 
-## Testing Approach
-
-- JS tests (`tests/test_status_line.js`): use `node:test` (no deps), run StatusLine hook via `execFileSync`.
-- CI: GitHub Actions on push/PR to main — Node 20.
+Tests use `node:test` (no deps), run the hook via `execFileSync`. 
+CI: GitHub Actions on push/PR to main, Node 20.

@@ -1,6 +1,5 @@
 # Claude Code Status Line
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-hooks-blueviolet)](https://code.claude.com/docs/en/hooks)
 
 A color-coded status line for Claude Code CLI — context window usage, rate limits, project info, and git branch. Single file, under 100 lines, no dependencies.
@@ -21,13 +20,12 @@ cd claude-code-status-line
 bash install.sh
 ```
 
-Copies `status-line.js` to `~/.claude/`, patches `~/.claude/settings.json` (with backup). **Restart Claude Code** after install.
+Copies `status-line.js` to `~/.claude/` and patches `~/.claude/settings.json` (with backup).
 
 ### Manual install
 
 ```bash
 cp status-line.js ~/.claude/
-chmod +x ~/.claude/status-line.js
 ```
 
 Add to `~/.claude/settings.json`:

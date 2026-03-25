@@ -4,7 +4,7 @@
 
 const { describe, it } = require('node:test');
 const assert = require('node:assert');
-const { execFileSync } = require('node:child_process');
+const { execFileSync, execSync } = require('node:child_process');
 const path = require('node:path');
 
 const HOOK = path.join(__dirname, '..', 'status-line.js');
@@ -18,20 +18,11 @@ function runHook(input) {
 
 function makeInput(overrides = {}) {
     return {
-        session_id: 'test-sess',
         context_window: {
             used_percentage: 25,
-            remaining_percentage: 75,
             context_window_size: 200000,
-            total_input_tokens: 50000,
-            total_output_tokens: 5000,
-            current_usage: {
-                cache_read_input_tokens: 40000,
-                cache_creation_input_tokens: 10000,
-            },
         },
-        cost: { total_cost_usd: 0.123 },
-        model: { id: 'claude-sonnet-4-6', display_name: 'Sonnet' },
+        model: { display_name: 'Sonnet' },
         ...overrides,
     };
 }
@@ -45,7 +36,6 @@ describe('status line output', () => {
     });
 
     it('includes project and branch when cwd is a git repo', () => {
-        const { execSync } = require('node:child_process');
         const input = makeInput({ cwd: process.cwd() });
         const output = runHook(input);
         const dirName = path.basename(process.cwd());
@@ -65,16 +55,18 @@ describe('status line output', () => {
     });
 
     it('outputs yellow bar at warning level (60K-80K tokens)', () => {
+        // 35% of 200K = 70K tokens → warning level
         const input = makeInput({
-            context_window: { ...makeInput().context_window, used_percentage: 35, total_input_tokens: 70_000 },
+            context_window: { used_percentage: 35, context_window_size: 200000 },
         });
         const output = runHook(input);
         assert.ok(output.includes('\x1b[33m'), 'expected yellow ANSI code');
     });
 
-    it('outputs orange bar at danger level (>=100K tokens)', () => {
+    it('outputs orange bar at danger level (>=80K tokens)', () => {
+        // 55% of 200K = 110K tokens → danger level
         const input = makeInput({
-            context_window: { ...makeInput().context_window, used_percentage: 55, total_input_tokens: 110_000 },
+            context_window: { used_percentage: 55, context_window_size: 200000 },
         });
         const output = runHook(input);
         assert.ok(output.includes('\x1b[38;5;208m'), 'expected orange ANSI code');
@@ -82,7 +74,8 @@ describe('status line output', () => {
 
     it('includes token counts', () => {
         const output = runHook(makeInput());
-        assert.ok(output.includes('K/167K'), 'expected effective window size');
+        // 25% of 200K = 50K tokens, effective window = 200K - 33K = 167K
+        assert.ok(output.includes('50K/167K'), 'expected token counts');
     });
 
     it('handles invalid JSON gracefully', () => {
