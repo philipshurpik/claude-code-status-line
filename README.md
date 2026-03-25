@@ -4,13 +4,11 @@
 
 A color-coded status line for Claude Code CLI — context window usage, rate limits, project info, and git branch. Single file, under 100 lines, no dependencies.
 
-```
-◆ Opus │ ▪ my-project │ ⎇ main │ ◷ 14:32 │ ███▄░░░░░░ 34% (57K/167K) │ 42% ↻2h │ 15% ⟳1d1h
-```
+![demo](demo.png)
 
-**Segments:** model name, project, git branch, time, context bar with tokens, 5h session usage, 7d weekly usage.
+Everything is color-coded: context bar shifts green → yellow (60K+ tokens) → orange (80K+ tokens), rate limits turn red at >80%.
 
-**Colors:** green → yellow (60K+ tokens) → orange (80K+ tokens). Rate limits turn red at >80%.
+**Segments:** model, project, git branch, time, context bar with tokens, 5h session usage, 7d weekly usage.
 
 ## Install
 
