@@ -10,7 +10,6 @@ A color-coded status line for Claude Code CLI that shows context window usage, r
 A single Node.js script (`status-line.js`) that runs as a Claude Code StatusLine hook. On every streaming update it:
 
 - Receives live `context_window` and `rate_limits` data from Claude Code
-- Writes per-session metrics to disk (context %, token counts, session/weekly usage, `last_interaction_time`)
 - Displays a color-coded status bar in the terminal
 
 Fully self-contained — single file, no dependencies.
@@ -24,7 +23,7 @@ Fully self-contained — single file, no dependencies.
 - Model name
 - Project directory
 - Git branch
-- Last interaction time
+- Current time
 - Context usage bar with percentage and token counts
 - 5-hour session usage with reset countdown
 - 7-day weekly usage with reset countdown
@@ -40,7 +39,7 @@ bash install.sh
 ```
 
 The installer will:
-- Copy `status-line.js` to `~/.claude/hooks/`
+- Copy `status-line.js` to `~/.claude/`
 - Patch `~/.claude/settings.json` (with backup)
 
 Then **restart Claude Code**.
@@ -50,9 +49,8 @@ Then **restart Claude Code**.
 ### Step 1: Copy script
 
 ```bash
-mkdir -p ~/.claude/hooks
-cp status-line.js ~/.claude/hooks/
-chmod +x ~/.claude/hooks/status-line.js
+cp status-line.js ~/.claude/
+chmod +x ~/.claude/status-line.js
 ```
 
 ### Step 2: Edit `~/.claude/settings.json`
@@ -63,7 +61,7 @@ Add or merge the following into your existing settings:
 {
   "statusLine": {
     "type": "command",
-    "command": "node ~/.claude/hooks/status-line.js",
+    "command": "node ~/.claude/status-line.js",
     "padding": 0
   }
 }
@@ -85,14 +83,10 @@ const WARN_TOKENS = 60_000;                // status turns yellow/warning
 const COMPACT_TOKENS = 80_000;             // status turns orange/danger
 ```
 
-## Metrics File
-
-Writes `metrics-{session_id}.json` to `$TMPDIR/claude-code-compact-guard/` (override with `COMPACT_GUARD_TMPDIR` env var). Contains context %, tokens, rate limits, `last_interaction_time`. Other tools can read these metrics for their own purposes.
-
 ## Uninstall
 
 ```bash
-rm ~/.claude/hooks/status-line.js
+rm ~/.claude/status-line.js
 ```
 
 Then remove the `statusLine` entry from `~/.claude/settings.json`.

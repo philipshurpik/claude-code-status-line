@@ -2,25 +2,21 @@
 set -euo pipefail
 
 # Claude Code Status Line - installer
-# Copies status-line.js to ~/.claude/hooks/ and patches settings.json
+# Copies status-line.js to ~/.claude/ and patches settings.json
 
-HOOKS_DIR="$HOME/.claude/hooks"
-SETTINGS_FILE="$HOME/.claude/settings.json"
+CLAUDE_DIR="$HOME/.claude"
+SETTINGS_FILE="$CLAUDE_DIR/settings.json"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 echo "=== Claude Code Status Line Installer ==="
 echo ""
 
-# 1. Create hooks directory
-mkdir -p "$HOOKS_DIR"
-echo "✓ Created $HOOKS_DIR"
+# 1. Copy script
+cp "$SCRIPT_DIR/status-line.js" "$CLAUDE_DIR/status-line.js"
+chmod +x "$CLAUDE_DIR/status-line.js"
+echo "✓ Copied status-line.js to $CLAUDE_DIR"
 
-# 2. Copy script
-cp "$SCRIPT_DIR/status-line.js" "$HOOKS_DIR/status-line.js"
-chmod +x "$HOOKS_DIR/status-line.js"
-echo "✓ Copied status-line.js to $HOOKS_DIR"
-
-# 3. Patch settings.json
+# 2. Patch settings.json
 if [ ! -f "$SETTINGS_FILE" ]; then
     echo '{}' > "$SETTINGS_FILE"
     echo "✓ Created $SETTINGS_FILE"
@@ -31,12 +27,12 @@ cp "$SETTINGS_FILE" "$SETTINGS_FILE.backup.$(date +%s)"
 echo "✓ Backed up settings.json"
 
 # Use Python to merge settings (available everywhere Claude Code runs)
-python3 - "$SETTINGS_FILE" "$HOOKS_DIR" <<'PYTHON_SCRIPT'
+python3 - "$SETTINGS_FILE" "$CLAUDE_DIR" <<'PYTHON_SCRIPT'
 import json
 import sys
 
 settings_path = sys.argv[1]
-hooks_dir = sys.argv[2]
+claude_dir = sys.argv[2]
 
 with open(settings_path) as f:
     settings = json.load(f)
@@ -44,7 +40,7 @@ with open(settings_path) as f:
 # Add StatusLine
 settings['statusLine'] = {
     'type': 'command',
-    'command': f'node {hooks_dir}/status-line.js',
+    'command': f'node {claude_dir}/status-line.js',
     'padding': 0,
 }
 print('  + Set statusLine -> status-line.js')
@@ -64,6 +60,6 @@ echo "Installed:"
 echo "  - StatusLine: context % with color coding, rate limits, project/branch info"
 echo ""
 echo "To customize thresholds, edit:"
-echo "  $HOOKS_DIR/status-line.js (WARN_TOKENS, COMPACT_TOKENS)"
+echo "  $CLAUDE_DIR/status-line.js (WARN_TOKENS, COMPACT_TOKENS)"
 echo ""
 echo "⚠️  Restart Claude Code for changes to take effect."

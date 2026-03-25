@@ -1,14 +1,9 @@
 #!/usr/bin/env node
 
-// StatusLine hook: monitors context usage and writes metrics to a temp file.
+// StatusLine hook: color-coded context window and rate limits display.
 
-const fs = require('fs');
 const path = require('path');
-const os = require('os');
 const { execSync } = require('child_process');
-
-const BASE_DIR = process.env.COMPACT_GUARD_TMPDIR || os.tmpdir();
-const METRICS_DIR = path.join(BASE_DIR, 'claude-code-compact-guard');
 
 // Autocompact buffer (Claude Code reserves ~33K tokens for autocompact)
 const AUTOCOMPACT_BUFFER_TOKENS = 33_000;
@@ -42,7 +37,6 @@ process.stdin.on('end', () => {
     const cwd = data.cwd || '';
     const rawUsedPct = ctx.used_percentage ?? 0;
     const windowSize = ctx.context_window_size ?? 200000;
-    const currentUsage = ctx.current_usage || {};
 
     // Recalculate percentage against effective window (excluding autocompact buffer)
     const effectiveWindow = windowSize - AUTOCOMPACT_BUFFER_TOKENS;
@@ -58,47 +52,8 @@ process.stdin.on('end', () => {
     const weeklyUsagePct = rlSevenDay?.used_percentage != null ? Math.round(rlSevenDay.used_percentage) : null;
     const weeklyResetsAt = rlSevenDay?.resets_at ?? null;
 
-    // Determine usage level based on absolute token thresholds (using tokensUsed which matches the displayed value)
+    // Determine usage level based on absolute token thresholds
     const level = tokensUsed >= COMPACT_TOKENS ? 'danger' : tokensUsed >= WARN_TOKENS ? 'warn' : 'ok';
-
-    // Write metrics for the Stop hook to read
-    const metrics = {
-      timestamp: Date.now(),
-      level,
-      used_percentage: usedPct,
-      remaining_percentage: 100 - usedPct,
-      context_window_size: effectiveWindow,
-      total_input_tokens: ctx.total_input_tokens ?? 0,
-      total_output_tokens: ctx.total_output_tokens ?? 0,
-      cache_read_input_tokens: currentUsage.cache_read_input_tokens ?? 0,
-      cache_creation_input_tokens: currentUsage.cache_creation_input_tokens ?? 0,
-      session_usage_pct: sessionUsagePct,
-      session_resets_at: sessionResetsAt,
-      weekly_usage_pct: weeklyUsagePct,
-      weekly_resets_at: weeklyResetsAt,
-      model_id: model.id ?? 'unknown',
-      session_id: data.session_id ?? '',
-      cwd: cwd,
-    };
-
-    // Write session-scoped metrics file so multiple sessions don't conflict
-    try { fs.mkdirSync(METRICS_DIR, { recursive: true }); } catch { /* exists */ }
-    const sessionId = (data.session_id ?? 'unknown').replace(/[/\\]/g, '').replace(/\.\./g, '');
-    const sessionMetricsFile = path.join(METRICS_DIR, `metrics-${sessionId}.json`);
-
-    // Only update last_interaction_time when token counts change (real model response)
-    let lastInteractionTime = Date.now();
-    try {
-      const prev = JSON.parse(fs.readFileSync(sessionMetricsFile, 'utf8'));
-      if (prev.last_interaction_time
-          && prev.total_input_tokens === metrics.total_input_tokens
-          && prev.total_output_tokens === metrics.total_output_tokens) {
-        lastInteractionTime = prev.last_interaction_time;
-      }
-    } catch { /* no previous metrics */ }
-    metrics.last_interaction_time = lastInteractionTime;
-
-    fs.writeFileSync(sessionMetricsFile, JSON.stringify(metrics, null, 2));
 
     // Color-coded status line output
     const color = level === 'danger' ? '\x1b[38;5;208m' : level === 'warn' ? '\x1b[33m' : '\x1b[32m';
@@ -127,8 +82,8 @@ process.stdin.on('end', () => {
       return ch ? `${color}${ch}${reset}` : `${dimColor}░${reset}`;
     }).join('');
 
-    const lastActive = new Date(lastInteractionTime);
-    const time = `${String(lastActive.getHours()).padStart(2, '0')}:${String(lastActive.getMinutes()).padStart(2, '0')}`;
+    const now = new Date();
+    const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
     // Build output
     let output = `◆ ${modelName}`;
