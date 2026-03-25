@@ -8,7 +8,18 @@ A color-coded status line for Claude Code CLI — context window usage, rate lim
 
 Everything is color-coded: context bar shifts green → yellow (60K+ tokens) → orange (80K+ tokens), rate limits turn red at >80%.
 
-**Segments:** model, project, git branch, time, context bar with tokens, 5h session usage, 7d weekly usage.
+**Segments:** model, project, git branch, last message time, context bar with tokens, 5h session usage, 7d weekly usage.
+
+## Why
+
+Most status lines are bulky — they pull in font dependencies, demand configuration, or display information you never look at. 
+This one shows exactly what an engineer needs to work efficiently with Claude Code:
+
+- **Model & context window** — know which model you're on and how full the context is. Color shifts from green to yellow to orange so you can compact or clear before hitting the limit.
+- **Time since last message** — prompt cache in Claude Code lives ~4 minutes after model gives you an answer. If 4+ minutes have passed, your next message will re-read the entire context without cache, consuming significantly more of your plan usage. When you see time exceeded that mark, it's better to `/clear` or switch to a new tab rather than waste tokens on a cold context.
+- **Rate limit usage (5h / 7d)** — see how much of your plan you've burned so you can pace yourself across tasks and sessions.
+
+Knowing the cache timing also opens up a practical workflow: before stepping away for a coffee break, proactively ask the model to create a `Handoff.md` file (e.g. using a [Handoff skill](https://github.com/ykdojo/claude-code-tips/blob/main/skills/handoff/SKILL.md)) that captures current progress, open questions, and next steps — so you can pick up exactly where you left off in a fresh, cache-friendly session.
 
 ## Install
 
