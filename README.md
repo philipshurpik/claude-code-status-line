@@ -19,7 +19,8 @@ This one shows exactly what an engineer needs to work efficiently with Claude Co
 - **Time since last message** — prompt cache in Claude Code lives ~4 minutes after model gives you an answer. If 4+ minutes have passed, your next message will re-read the entire context without cache, consuming significantly more of your plan usage. When you see time exceeded that mark, it's better to `/clear` or switch to a new tab rather than waste tokens on a cold context.
 - **Rate limit usage (5h / 7d)** — see how much of your plan you've burned so you can pace yourself across tasks and sessions.
 
-Knowing the cache timing also opens up a practical workflow: before stepping away for a coffee break, proactively ask the model to create a `Handoff.md` file (e.g. using a [Handoff skill](https://github.com/ykdojo/claude-code-tips/blob/main/skills/handoff/SKILL.md)) that captures current progress, open questions, and next steps — so you can pick up exactly where you left off in a fresh, cache-friendly session.
+Knowing the cache timing also opens up a practical workflow: before stepping away for a coffee break, run `/handoff` while the cache is still hot to capture current progress, open questions, and next steps — so you can pick up exactly where you left off in a fresh, cache-friendly session. 
+The handoff command is included in this repo (`commands/handoff.md`) and can be installed alongside the status line.
 
 ## Install
 
@@ -29,12 +30,16 @@ cd claude-code-status-line
 bash install.sh
 ```
 
-Copies `status-line.js` to `~/.claude/` and patches `~/.claude/settings.json` (with backup).
+The installer will prompt you to choose what to install:
+1. **Status line only** — copies `status-line.js` to `~/.claude/` and patches `~/.claude/settings.json`
+2. **Status line + handoff command** — also copies `commands/handoff.md` to `~/.claude/commands/`
 
 ### Manual install
 
 ```bash
 cp status-line.js ~/.claude/
+# Optional: install handoff command
+mkdir -p ~/.claude/commands && cp commands/handoff.md ~/.claude/commands/
 ```
 
 Add to `~/.claude/settings.json`:

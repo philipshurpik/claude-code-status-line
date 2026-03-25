@@ -3,14 +3,22 @@ set -euo pipefail
 
 # Claude Code Status Line - installer
 # Copies status-line.js to ~/.claude/ and patches settings.json
+# Optionally installs the handoff command
 
 CLAUDE_DIR="$HOME/.claude"
 SETTINGS_FILE="$CLAUDE_DIR/settings.json"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 echo "=== Claude Code Status Line Installer ==="
+echo ""
+echo "What would you like to install?"
+echo "  1) Status line only"
+echo "  2) Status line + /handoff command"
+echo ""
+read -rp "Choose [1/2] (default: 2): " choice
+choice="${choice:-2}"
 
-# Copy script
+# Copy status line script
 cp "$SCRIPT_DIR/status-line.js" "$CLAUDE_DIR/status-line.js"
 echo "✓ Copied status-line.js to $CLAUDE_DIR"
 
@@ -35,5 +43,16 @@ fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
 " "$SETTINGS_FILE" "$CLAUDE_DIR"
 
 echo "✓ Updated $SETTINGS_FILE (backup saved)"
+
+# Install handoff command if selected
+if [ "$choice" = "2" ]; then
+    mkdir -p "$CLAUDE_DIR/commands"
+    cp "$SCRIPT_DIR/commands/handoff.md" "$CLAUDE_DIR/commands/handoff.md"
+    echo "✓ Copied handoff.md to $CLAUDE_DIR/commands/"
+fi
+
 echo ""
 echo "Done! Status line will appear in your next Claude Code interaction."
+if [ "$choice" = "2" ]; then
+    echo "Use /handoff in Claude Code to create a handoff document."
+fi
