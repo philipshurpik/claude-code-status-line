@@ -2,7 +2,7 @@
 
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-hooks-blueviolet)](https://code.claude.com/docs/en/hooks)
 
-A color-coded status line for Claude Code CLI — context window usage, rate limits, project info, and git branch. Single file, under 100 lines, no dependencies.
+A color-coded status line for Claude Code CLI — context window usage, rate limits, project info, and git branch. Single JS file, 100 lines, no dependencies.
 
 ![demo](demo.png)
 

@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-// Color-coded status line for Claude Code CLI (StatusLine hook).
-// Reads context_window + rate_limits from stdin, prints a formatted bar to stdout.
-
 const path = require('path');
+const fs = require('fs');
+const os = require('os');
 const { execSync } = require('child_process');
 
+const STATE_FILE = path.join(os.tmpdir(), 'claude-status-line-state.json');
 const AUTOCOMPACT_BUFFER_TOKENS = 33_000;
 const WARN_TOKENS = 60_000;
 const COMPACT_TOKENS = 80_000;
@@ -54,7 +54,6 @@ process.stdin.on('end', () => {
     const rawUsedPct = ctx.used_percentage ?? 0;
     const tokensUsed = Math.round((rawUsedPct / 100) * windowSize);
     const usedPct = Math.min(100, Math.round((tokensUsed / effectiveWindow) * 100));
-
     const level = tokensUsed >= COMPACT_TOKENS ? 'danger' : tokensUsed >= WARN_TOKENS ? 'warn' : 'ok';
     const color = level === 'danger' ? '\x1b[38;5;208m' : level === 'warn' ? '\x1b[33m' : '\x1b[32m';
 
@@ -73,8 +72,14 @@ process.stdin.on('end', () => {
       return char ? `${color}${char}${RST}` : `${DIM}░${RST}`;
     }).join('');
 
-    const now = new Date();
-    const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    let lastCallMs;
+    try {
+      const prev = JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
+      lastCallMs = prev.tokensUsed === tokensUsed ? prev.timestamp : Date.now();
+    } catch { lastCallMs = Date.now(); }
+    fs.writeFileSync(STATE_FILE, JSON.stringify({ tokensUsed, timestamp: lastCallMs }));
+    const last = new Date(lastCallMs);
+    const time = `${String(last.getHours()).padStart(2, '0')}:${String(last.getMinutes()).padStart(2, '0')}`;
     const tokensK = (tokensUsed / 1000).toFixed(0);
     const windowK = (effectiveWindow / 1000).toFixed(0);
 
