@@ -3,34 +3,17 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-hooks-blueviolet)](https://code.claude.com/docs/en/hooks)
 
-A color-coded status line for Claude Code CLI that shows context window usage, rate limits, project info, and git branch.
-
-## What It Does
-
-A single Node.js script (`status-line.js`) that runs as a Claude Code StatusLine hook. On every streaming update it:
-
-- Receives live `context_window` and `rate_limits` data from Claude Code
-- Displays a color-coded status bar in the terminal
-
-Fully self-contained — single file, no dependencies.
-
-## Status Line
+A color-coded status line for Claude Code CLI — context window usage, rate limits, project info, and git branch. Single file, under 100 lines, no dependencies.
 
 ```
 ◆ Opus │ ▪ my-project │ ⎇ main │ ◷ 14:32 │ ███▄░░░░░░ 34% (57K/167K) │ 42% ↻2h │ 15% ⟳1d1h
 ```
 
-- Model name
-- Project directory
-- Git branch
-- Current time
-- Context usage bar with percentage and token counts
-- 5-hour session usage with reset countdown
-- 7-day weekly usage with reset countdown
+**Segments:** model name, project, git branch, time, context bar with tokens, 5h session usage, 7d weekly usage.
 
-Colors: green (ok) → yellow (60K+ tokens) → orange (80K+ tokens). Rate limits get red at >80%.
+**Colors:** green → yellow (60K+ tokens) → orange (80K+ tokens). Rate limits turn red at >80%.
 
-## Quick Install
+## Install
 
 ```bash
 git clone https://github.com/anthropics/claude-code-status-line.git
@@ -38,24 +21,16 @@ cd claude-code-status-line
 bash install.sh
 ```
 
-The installer will:
-- Copy `status-line.js` to `~/.claude/`
-- Patch `~/.claude/settings.json` (with backup)
+Copies `status-line.js` to `~/.claude/`, patches `~/.claude/settings.json` (with backup). **Restart Claude Code** after install.
 
-Then **restart Claude Code**.
-
-## Manual Install
-
-### Step 1: Copy script
+### Manual install
 
 ```bash
 cp status-line.js ~/.claude/
 chmod +x ~/.claude/status-line.js
 ```
 
-### Step 2: Edit `~/.claude/settings.json`
-
-Add or merge the following into your existing settings:
+Add to `~/.claude/settings.json`:
 
 ```json
 {
@@ -67,20 +42,14 @@ Add or merge the following into your existing settings:
 }
 ```
 
-### Step 3: Restart Claude Code
-
-Quit and reopen, or start a new session. Verify with `/hooks`.
-
 ## Configuration
 
-### Token thresholds
-
-Defined in `status-line.js`:
+Edit thresholds in `~/.claude/status-line.js`:
 
 ```javascript
-const AUTOCOMPACT_BUFFER_TOKENS = 33_000;  // Claude Code reserves this; subtracted from raw window
-const WARN_TOKENS = 60_000;                // status turns yellow/warning
-const COMPACT_TOKENS = 80_000;             // status turns orange/danger
+const AUTOCOMPACT_BUFFER_TOKENS = 33_000;  // subtracted from raw window
+const WARN_TOKENS = 60_000;                // yellow
+const COMPACT_TOKENS = 80_000;             // orange
 ```
 
 ## Uninstall
@@ -90,13 +59,3 @@ rm ~/.claude/status-line.js
 ```
 
 Then remove the `statusLine` entry from `~/.claude/settings.json`.
-
-## Commands
-
-```bash
-# Run tests
-node --test tests/test_status_line.js
-
-# Install
-bash install.sh
-```
