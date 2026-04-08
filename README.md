@@ -24,11 +24,29 @@ The handoff command is included in this repo (`commands/handoff.md`) and can be 
 
 ## Install
 
+### macOS / Linux
+
 ```bash
 git clone https://github.com/philipshurpik/claude-code-status-line.git
 cd claude-code-status-line
 make install
 ```
+
+### Windows
+
+```powershell
+git clone https://github.com/philipshurpik/claude-code-status-line.git
+cd claude-code-status-line
+make install-win
+```
+
+Or directly:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File install.ps1
+```
+
+---
 
 The installer will prompt you to choose what to install:
 1. **Status line only** - copies `status-line.js` to `~/.claude/` and patches `~/.claude/settings.json`
@@ -36,13 +54,24 @@ The installer will prompt you to choose what to install:
 
 ### Manual install
 
+**macOS / Linux:**
+
 ```bash
 cp status-line.js ~/.claude/
 # Optional: install handoff command
 mkdir -p ~/.claude/commands && cp commands/handoff.md ~/.claude/commands/
 ```
 
-Add to `~/.claude/settings.json`:
+**Windows (PowerShell):**
+
+```powershell
+Copy-Item status-line.js $env:USERPROFILE\.claude\
+# Optional: install handoff command
+New-Item -ItemType Directory -Force $env:USERPROFILE\.claude\commands
+Copy-Item commands\handoff.md $env:USERPROFILE\.claude\commands\
+```
+
+Then add to `~/.claude/settings.json`:
 
 ```json
 {
