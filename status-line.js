@@ -62,7 +62,7 @@ process.stdin.on('end', () => {
     if (cwd) {
       try {
         branch = execSync('git --no-optional-locks branch --show-current',
-          { cwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+          { cwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim().slice(0, 30);
       } catch { /* not a git repo */ }
     }
 
@@ -83,7 +83,7 @@ process.stdin.on('end', () => {
     const tokensK = (tokensUsed / 1000).toFixed(0);
     const windowK = (effectiveWindow / 1000).toFixed(0);
 
-    let output = `◆ ${model.display_name ?? 'Claude'}`;
+    let output = `◆ ${(model.display_name ?? 'Claude').replace(/\(1M context\)/, '1M').trim()}`;
     if (project) output += ` │ ▪ ${project}`;
     if (branch) output += ` │ ⎇ ${branch}`;
     output += ` │ ◷ ${time}`;
