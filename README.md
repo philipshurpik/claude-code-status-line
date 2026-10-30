@@ -26,11 +26,29 @@ The repo also includes an optional [best-practices rules file](#best-practices-r
 
 ## Install
 
+### macOS / Linux
+
 ```bash
 git clone https://github.com/philipshurpik/claude-code-status-line.git
 cd claude-code-status-line
 make install
 ```
+
+### Windows
+
+```powershell
+git clone https://github.com/philipshurpik/claude-code-status-line.git
+cd claude-code-status-line
+make install-win
+```
+
+Or directly:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File install.ps1
+```
+
+---
 
 The installer will prompt you to choose what to install:
 1. **Status line only** - copies `status-line.js` to `~/.claude/` and patches `~/.claude/settings.json`
@@ -38,6 +56,8 @@ The installer will prompt you to choose what to install:
 3. **Status line + handoff command + best-practices rules** - also copies `rules/best-practices.md` to `~/.claude/rules/`
 
 ### Manual install
+
+**macOS / Linux:**
 
 ```bash
 cp status-line.js ~/.claude/
@@ -47,7 +67,16 @@ mkdir -p ~/.claude/commands && cp commands/handoff.md ~/.claude/commands/
 mkdir -p ~/.claude/rules && cp rules/best-practices.md ~/.claude/rules/
 ```
 
-Add to `~/.claude/settings.json`:
+**Windows (PowerShell):**
+
+```powershell
+Copy-Item status-line.js $env:USERPROFILE\.claude\
+# Optional: install handoff command
+New-Item -ItemType Directory -Force $env:USERPROFILE\.claude\commands
+Copy-Item commands\handoff.md $env:USERPROFILE\.claude\commands\
+```
+
+Then add to `~/.claude/settings.json`:
 
 ```json
 {
