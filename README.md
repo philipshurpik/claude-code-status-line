@@ -22,6 +22,8 @@ This one shows exactly what an engineer needs to work efficiently with Claude Co
 Knowing the cache timing also opens up a practical workflow: before stepping away for a coffee break, run `/handoff` while the cache is still hot to capture current progress, open questions, and next steps - so you can pick up exactly where you left off in a fresh, cache-friendly session. 
 The handoff command is included in this repo (`commands/handoff.md`) and can be installed alongside the status line.
 
+The repo also includes an optional [best-practices rules file](#best-practices-rules) for Claude Code (`rules/best-practices.md`). It covers working style, git discipline, and code style, and installs the same way.
+
 ## Install
 
 ```bash
@@ -33,6 +35,7 @@ make install
 The installer will prompt you to choose what to install:
 1. **Status line only** - copies `status-line.js` to `~/.claude/` and patches `~/.claude/settings.json`
 2. **Status line + handoff command** - also copies `commands/handoff.md` to `~/.claude/commands/`
+3. **Status line + handoff command + best-practices rules** - also copies `rules/best-practices.md` to `~/.claude/rules/`
 
 ### Manual install
 
@@ -40,6 +43,8 @@ The installer will prompt you to choose what to install:
 cp status-line.js ~/.claude/
 # Optional: install handoff command
 mkdir -p ~/.claude/commands && cp commands/handoff.md ~/.claude/commands/
+# Optional: install best-practices rules
+mkdir -p ~/.claude/rules && cp rules/best-practices.md ~/.claude/rules/
 ```
 
 Add to `~/.claude/settings.json`:
@@ -64,10 +69,22 @@ const WARN_TOKENS = 60_000;                // yellow
 const COMPACT_TOKENS = 80_000;             // orange
 ```
 
+## Best-practices rules
+
+`rules/best-practices.md` is an optional set of global instructions for Claude Code. It covers working style, writing style, git discipline, verification of API and model names, Python code style, project setup, and testing.
+
+The installer copies it to `~/.claude/rules/best-practices.md`. Claude Code loads every file in `~/.claude/rules/` at the start of each session, in every project on your machine. No change to `~/.claude/CLAUDE.md` is needed.
+
+The rules are opinionated. Open the installed copy and delete the sections you do not want. For example, delete the Python sections if you do not write Python. The file adds about 900 tokens to the context of each session.
+
+A re-run of the installer overwrites the installed copy. If you edit the file, rename it so that a re-install does not overwrite your changes.
+
 ## Uninstall
 
 ```bash
 rm ~/.claude/status-line.js
+# Optional, if installed:
+rm ~/.claude/commands/handoff.md ~/.claude/rules/best-practices.md
 ```
 
 Then remove the `statusLine` entry from `~/.claude/settings.json`.

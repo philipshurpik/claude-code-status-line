@@ -8,6 +8,8 @@ A color-coded status line for Claude Code CLI. Single Node.js script (`status-li
 
 Fully self-contained, no dependencies.
 
+Optional extras, installed by `install.sh` on request: `commands/handoff.md` (the `/handoff` slash command, copied to `~/.claude/commands/`) and `rules/best-practices.md` (a user-level rules file, copied to `~/.claude/rules/` and loaded in every session).
+
 ## Architecture
 
 ```
